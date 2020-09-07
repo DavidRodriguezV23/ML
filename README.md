@@ -3,5 +3,5 @@ Repositorio de pruebas de machine learning.
 
 Contiene:  
 - IA Notebooks
-- JupyterNotebooks
+- Jupyter Notebooks
 - Python
