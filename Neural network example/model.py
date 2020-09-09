@@ -6,7 +6,7 @@ Descripción:  Contiene un las funciones de la red neuronal
 '''
 
 
-def initialize_parameteres(dims):
+def initialize_parameters(dims):
     '''
     Inializa los pesos y sesgos de la red neuronal
     
@@ -19,13 +19,17 @@ def initialize_parameteres(dims):
         b1 -- vector de sesgos, de dimensiones (dims[l], dims[1]) 
     '''
 
+    # print(len(dims))
+
     parameters = {}
 
     ldims = len(dims)
 
     for l in range(1, ldims):
-        parameters["W" + str(l)]: np.random.randn(dims[l], dims[l - 1]) * 0.01
-        parameters["b" + str(l)]: np.zeros((dims[l], 1))
+        parameters["W" + str(l)] = np.random.randn(dims[l], dims[l - 1]) * 0.01
+        parameters["b" + str(l)] = np.zeros((dims[l], 1))
+
+    # print(parameters)
 
     return parameters
 
@@ -78,15 +82,16 @@ def linear_activation_forward(A_prev, W, b, activation):
     return A, cache
 
 
-def model_forward(X, parameteres):
+def model_forward(X, parameters, Ltype):
     '''
     Implementa un paso hacia adelante para el modelo:
         - Para las capas 1, ..., l - 1 implementa RELU
-        - Para la capa l usa la función sigmoide
+        - Para la capa l usa la función de tipo Ltype
         
     Arguments:
     X -- input de la red neuronal, de dimensiones (input_size, número de ejemplos)
-    parameteres -- python array (list) que contiene los parametros de la red neuronal
+    parameters -- python array (list) que contiene los parametros de la red neuronal
+    Ltpye -- String que contiene el tipo de activación de la ultima capa de la red neuronal, "Sigmoid" o "Relu"
     
     Returns:
     Al -- activación de la l capa de la red neuronal
@@ -95,35 +100,69 @@ def model_forward(X, parameteres):
 
     caches = []
     A = X
-    L = len(parameteres) // 2
+    L = len(parameters) // 2
 
     for l in range(1, L):
         A_prev = A
-        A, cache = linear_activation_forward(A_prev, parameteres["W" + str(l)], parameteres["b" + str(l)], "Relu")
+        A, cache = linear_activation_forward(A_prev, parameters["W" + str(l)], parameters["b" + str(l)], "Relu")
         caches.append(cache)
 
-    AL, cache = linear_activation_forward(A, parameteres["W" + str(L)], parameteres["b" + str(L)], "Sigmoid")
+    if Ltype == "Sigmoid":
+        AL, cache = linear_activation_forward(A, parameters["W" + str(L)], parameters["b" + str(L)], "Sigmoid")
+    elif Ltype == "Relu":
+        AL, cache = linear_activation_forward(A, parameters["W" + str(L)], parameters["b" + str(L)], "Relu")
+
     caches.append(cache)
 
     return AL, caches
 
 
-def cost_function(AL, Y):
+def cost_function(AL, Y, type):
     '''
     Implementa la función de costo para la red neuronal
 
     Arguments:
     AL -- Vector de probabilidades obtenido de la red neuronal, de dimensiones(1, número de ejemplos)
     Y -- True label vector, de dimensiones(1, número de ejemplos)
+    type -- string que contiene el identificador de la función de costo, "Ce" para cross entropy, "Rmse" para root mean
+    squared error, "Mse" para mean squared error
 
     Returns:
-    cost -- Cross-entropy cost
+    cost -- retorna el costo
     '''
 
-    cost = -1 / AL.shape[1] * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1 - AL))
+    if type == "Ce":
+        cost = -1 / AL.shape[1] * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1 - AL))
+    elif type == "Rmse":
+        cost = np.sqrt(1 / AL.shape[1] * np.sum(np.power(np.subtract(Y, AL), 2), axis=1))
+    elif type == "Mse":
+        cost = np.mean(np.power(np.subtract(Y, AL), 2))
     cost = np.squeeze(cost)
 
     return cost
+
+
+def derivate_cost(AL, Y, type):
+    '''
+    Retorna el gradiente del costo asociado a la activación de la ultima capa
+    Arguments:
+    AL -- Valor predicho por la red neuronal, de dimensiones (1, número de ejemplos)
+    Y -- True label del dataset, de dimensiones (1, número de ejemplos)
+    type -- string que contiene el tipo de función usada para calcular el error, "Ce" para cross entropy, "Rmse" para
+    root mean squared error, "Mse" para mean squared error
+
+    Returns:
+    dAL -- Gradiente del costo asociado a la activación de la ultima capa
+    '''
+
+    if type == "Ce":
+        dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+    elif type == "Rmse":
+        dAL = - 1 * np.divide(np.subtract(Y, AL), (np.sqrt((np.power(np.subtract(Y, AL), 2)))))
+    elif type == "Mse":
+        dAL = np.subtract(AL, Y)
+
+    return dAL
 
 
 def linear_backward(dZ, cache):
@@ -177,7 +216,7 @@ def linear_activation_backward(dA, cache, activation):
     return dA_prev, dW, db
 
 
-def model_backward(AL, Y, caches):
+def model_backward(AL, Y, caches, costType, activationType):
     '''
     Implementa backpropagation para todo el modelo de red neuronal
 
@@ -186,7 +225,10 @@ def model_backward(AL, Y, caches):
     Y --  True label vector, de dimensiones (1, número de ejemplos)
     caches --  Lista de caches que contienen el cache lineal y de la activación:
         L - 1 RELU
-        Para la capa L contiene Sigmoide
+        Para la capa L contiene activación dada al modelo
+    costType -- String que contiene el tipo de costo usado para calcular el error de la red neuronal, "Ce" ó "Rmse"
+    activationType -- String que contiene el tipo de activación usada en la última capa de la red neuronal, "Sigmoid" ó
+    "Relu"
 
     Returns:
     grads -- Diccionario de gradientes dA, dW, db para cada una de las capas
@@ -197,19 +239,27 @@ def model_backward(AL, Y, caches):
     Y = Y.reshape(AL.shape)
     m = AL.shape[1]
 
-    dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+    dAL = derivate_cost(AL, Y, costType)
 
     current_c = caches[L - 1]
-    grads["dA" + str(L - 1)], grads["dW" + str(L - 1)], grads["db" + str(l - 1)] = linear_activation_backward(dA,
-                                                                                                              current_c,
-                                                                                                              "Sigmoid")
+
+    if activationType == "Sigmoid":
+        grads["dA" + str(L - 1)], grads["dW" + str(L)], grads["db" + str(L)] = linear_activation_backward(dAL,
+                                                                                                          current_c,
+                                                                                                          "Sigmoid")
+    elif activationType == "Relu":
+        grads["dA" + str(L - 1)], grads["dW" + str(L)], grads["db" + str(L)] = linear_activation_backward(dAL,
+                                                                                                          current_c,
+                                                                                                          "Relu")
 
     for l in reversed(range(L - 1)):
         current_c = caches[l]
-        grads["dA" + str(l)], grads["dW" + str(l)], grads["db" + str(l)] = linear_activation_backward(dA, current_c,
-                                                                                                      "Relu")
+        grads["dA" + str(l)], grads["dW" + str(l + 1)], grads["db" + str(l + 1)] = linear_activation_backward(
+            grads["dA" + str(l + 1)], current_c,
+            "Relu")
 
     return grads
+
 
 def update_parameters(parameters, grads, learning_rate):
     '''
@@ -224,24 +274,11 @@ def update_parameters(parameters, grads, learning_rate):
     '''
     L = len(parameters) // 2
 
+    #print("parameteres W1, b1: {}\n{}".format(parameters["W1"], parameters["b1"]))
+    #print("\ngrads dW1, db1: {}\n{}".format(grads["dW1"], grads["db1"]))
+
     for l in range(L):
         parameters["W" + str(l + 1)] -= learning_rate * grads["dW" + str(l + 1)]
         parameters["b" + str(l + 1)] -= learning_rate * grads["db" + str(l + 1)]
 
     return parameters
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
