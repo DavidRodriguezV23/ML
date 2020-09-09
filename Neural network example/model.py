@@ -1,8 +1,8 @@
-from .activations import relu, sigmoid, relu_backward, sigmoid_backward
+from activations import relu, sigmoid, relu_backward, sigmoid_backward
 import numpy as np
 
 '''
-Descripción:  Contiene un modelo de red neuronal y sus funciones respectivas
+Descripción:  Contiene un las funciones de la red neuronal
 '''
 
 
@@ -129,14 +129,14 @@ def cost_function(AL, Y):
 def linear_backward(dZ, cache):
     '''
     Implementa la parte lineal del backpropagation de la capa actual
-    Argumens:
+    Arguments:
     dZ -- Gradiente del costo respecto a la parte lineal
     cache -- python tuple que contiene A_prev, W, b obtenido de la propagación hacia adelante de la capa actual
 
     Returns:
     dA_prev -- Gradiente del costo respecto a la activación de la capa anterior, de dimensiones iguales a A_prev
     dW -- Gradiente del costo respecto a los pesos de la capa actual, de dimensiones iguales a W
-    db -- Gradiente del csto respecto a los sesgos de la capa actual, de dimensiones iguales a b
+    db -- Gradiente del costo respecto a los sesgos de la capa actual, de dimensiones iguales a b
     '''
 
     A_prev, W, b = cache
@@ -150,7 +150,7 @@ def linear_backward(dZ, cache):
     return dA_prev, dW, db
 
 
-def linear_activation_forward(dA, cache, activation):
+def linear_activation_backward(dA, cache, activation):
     '''
     Implementa backpropagation para la LINEAR->ACTIVATION de la capa actual
     Arguments:
@@ -175,3 +175,73 @@ def linear_activation_forward(dA, cache, activation):
         dA_prev, dW, db = linear_backward(dZ, linear_c)
 
     return dA_prev, dW, db
+
+
+def model_backward(AL, Y, caches):
+    '''
+    Implementa backpropagation para todo el modelo de red neuronal
+
+    Arguments:
+    AL --  Valor predicho por la red neuronal, de dimensiones (1, número de ejemplos)
+    Y --  True label vector, de dimensiones (1, número de ejemplos)
+    caches --  Lista de caches que contienen el cache lineal y de la activación:
+        L - 1 RELU
+        Para la capa L contiene Sigmoide
+
+    Returns:
+    grads -- Diccionario de gradientes dA, dW, db para cada una de las capas
+    '''
+
+    grads = {}
+    L = len(caches)
+    Y = Y.reshape(AL.shape)
+    m = AL.shape[1]
+
+    dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+
+    current_c = caches[L - 1]
+    grads["dA" + str(L - 1)], grads["dW" + str(L - 1)], grads["db" + str(l - 1)] = linear_activation_backward(dA,
+                                                                                                              current_c,
+                                                                                                              "Sigmoid")
+
+    for l in reversed(range(L - 1)):
+        current_c = caches[l]
+        grads["dA" + str(l)], grads["dW" + str(l)], grads["db" + str(l)] = linear_activation_backward(dA, current_c,
+                                                                                                      "Relu")
+
+    return grads
+
+def update_parameters(parameters, grads, learning_rate):
+    '''
+    Aplica descenso del gradiente para actualizar los pesos y sesgos de la red neuronal
+    Arguments:
+    parameters -- python dictionary que contiene los parametros actuales de la red neuronal
+    grads -- python dictionary que contiene los gradientes obtenidos de backpropagation
+    learning_rate -- Learning rate del modelo
+
+    Returns:
+    parameters -- python dictionary que contiene los parametros actualizados de la red neuronal
+    '''
+    L = len(parameters) // 2
+
+    for l in range(L):
+        parameters["W" + str(l + 1)] -= learning_rate * grads["dW" + str(l + 1)]
+        parameters["b" + str(l + 1)] -= learning_rate * grads["db" + str(l + 1)]
+
+    return parameters
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
