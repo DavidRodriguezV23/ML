@@ -5,9 +5,9 @@ Contiene:
 - IA Notebooks: Notebooks de dotcsv.
 	- Ataques adversarios.
 	- Pruebas redes neuronales.
-	- NN desde 0
+	- NN desde 0.
 	- Pruebas.
-	- Pix2Pix
+	- Pix2Pix.
 - Neural network example: Red neuronal de L capas, inspirada en cursos ofrecidos por Deeplearning.ai
 	- L - 1 capas con activación RELU.
 	- Capa L "Sigmoide" o "RELU".
