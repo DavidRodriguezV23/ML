@@ -26,7 +26,7 @@ def initialize_parameters(dims):
     ldims = len(dims)
 
     for l in range(1, ldims):
-        parameters["W" + str(l)] = np.random.randn(dims[l], dims[l - 1]) * 0.01
+        parameters["W" + str(l)] = np.abs(np.random.randn(dims[l], dims[l - 1])) * np.sqrt(2 / dims[l - 1])
         parameters["b" + str(l)] = np.zeros((dims[l], 1))
 
     # print(parameters)

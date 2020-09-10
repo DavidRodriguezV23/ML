@@ -26,14 +26,26 @@ def L_layer_model(X, Y, dims, cost_type, Lactivation, learning_rate=0.009, num_i
     costs = []
     parameters = initialize_parameters(dims)
 
+    #print("\nParametros iniciales: {}".format((parameters)))
+
     for i in range(num_iterations):
         AL, caches = model_forward(X, parameters, Lactivation)
 
+        #print("\nAL: {}".format(AL))
+
         cost = cost_function(AL, Y, cost_type)
+
+        #print("\ncost: {}\nY: {}".format(cost, Y))
 
         grads = model_backward(AL, Y, caches, cost_type, Lactivation)
 
+        #print("\ngrads: {}".format(grads))
+
+        #print("\nparameters: {}".format(parameters))
+
         parameters = update_parameters(parameters, grads, learning_rate)
+
+        #print("\nupdated parameters: {}".format(parameters))
 
         if print_cost and i % 100 == 0:
             print("Cost after iteration {}: {}".format(i, cost))

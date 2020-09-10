@@ -35,7 +35,7 @@ def relu(Z):
     
     A = np.maximum(0, Z)
     cache = Z
-    
+
     return A, cache
 
 def relu_backward(dA, cache):
