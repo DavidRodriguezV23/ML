@@ -16,4 +16,4 @@ Contiene:
 	- Neural Style Transfer by Gatys et al. (2015).
 	  Content             | Style             | Generated
 	  :-------------------------:|:-------------------------:|:-------------------------:
-	  ![](./Style transfer/Neural style transfer/images/coffee-shop.jpg)  |  ![](Style transfer/Neural style transfer/images/noche-estrellada.jpg)|  ![](Style transfer/Neural style transfer/images/output/coffe-noche.jpg)
+	  ![](./Style&#32;transfer/Neural&#32;style&#32;transfer/images/coffee-shop.jpg)  |  ![](./Style&#32;transfer/Neural&#32;style&#32;transfer/images/noche-estrellada.jpg)|  ![](./Style&#32;transfer/Neural&#32;style&#32;transfer/images/output/coffe-noche.jpg)
