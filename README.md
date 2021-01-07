@@ -17,4 +17,4 @@ Contiene:
 	  Content             | Style             | Generated
 	  :-------------------------:|:-------------------------:|:-------------------------:
 	  ![](./Style&#32;transfer/Neural&#32;style&#32;transfer/images/coffee-shop.jpg)  |  ![](./Style&#32;transfer/Neural&#32;style&#32;transfer/images/noche-estrellada.jpg)|  ![](./Style&#32;transfer/Neural&#32;style&#32;transfer/images/output/coffe-noche.jpg)
-- Detección de CNV: Detector de neurovascularización coroidea en tomografías de coherencia optica.
+- Detección de CNV: Detector de neovascularización coroidea en tomografías de coherencia optica.

@@ -35,7 +35,7 @@ class Controller():
             self.view.textGen.set('Clasificación: Normal')
         else:
             self.view.selGen.place(x=12, y=430)
-            self.view.textGen.set('Clasificación: Neurovascularización coroidea')
+            self.view.textGen.set('Clasificación: Neovascularización coroidea')
 
     def predict(self, X):
         return self.model.predict(X)
